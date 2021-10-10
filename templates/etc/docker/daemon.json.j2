@@ -8,7 +8,5 @@
   "ipv6": {{ docker_ipv6|bool|to_json }},
   "userland-proxy": {{ (not docker_ipv6_nat)|bool|to_json }},
   "fixed-cidr-v6": "{{ docker_ipv6_subnet|default('fd00::/80') }}"
-{% endif %}{% if __molecule_ci|default(false) %}
-  "storage-driver": "vfs"
 {% endif %}
 }
