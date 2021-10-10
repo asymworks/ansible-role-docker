@@ -1,0 +1,133 @@
+---
+# Main Entry Point for asymworks.docker
+
+# Run Distribution-Specific Tasks
+- import_tasks: main-alpine.yaml
+  when: ansible_facts['os_family']|lower == 'alpine'
+
+- import_tasks: main-debian.yaml
+  when: ansible_facts['os_family']|lower == 'debian'
+
+# Add ansible User to Docker Group
+- name: Docker | Add User to Docker Group
+  user:
+    name: ansible
+    groups: docker
+    append: true
+
+# Start Docker Daemon
+- name: Docker | Start Docker
+  service:
+    name: docker
+    enabled: true
+    state: started
+
+# Install Python Docker SDK
+- name: Docker | Install Docker Module for Python
+  pip:
+    name: docker
+
+# Enable Docker IPv6
+- name: Docker | Enable IPv6
+  when: docker_ipv6
+  block:
+    - name: Docker (IPv6) | Update Daemon Configuration
+      ansible.builtin.template:
+        src: etc/docker/daemon.json.j2
+        dest: /etc/docker/daemon.json
+        owner: root
+        group: root
+        mode: '0644'
+      notify: Docker | Restart Docker
+
+    - name: Docker (IPv6) | Setup IPv6 Network
+      when: docker_ipv6_network != 'default'
+      community.docker.docker_network:
+        name: "{{ docker_ipv6_network }}"
+        enable_ipv6: true
+        ipam_config:
+          - subnet: "{{ docker_ipv6_subnet }}"
+
+    - name: Docker (IPv6) | Install IPv6 NAT
+      when: docker_ipv6_network == 'default'
+      community.docker.docker_container:
+        name: ipv6nat
+        image: robbertkl/ipv6nat:0.4.4
+        network_mode: host
+        cap_drop:
+          - ALL
+        capabilities:
+          - NET_RAW
+          - NET_ADMIN
+          - SYS_MODULE
+        volumes:
+          - /var/run/docker.sock:/var/run/docker.sock:ro
+          - /lib/modules:/lib/modules:ro
+        labels:
+          diun.enable: "true"
+        pull: "{{ docker_upgrade_images | default(false) | bool }}"
+        restart_policy: always
+        container_default_behavior: compatibility
+        state: started
+
+# Configure Telegraf
+- name: Docker | Configure Telegraf
+  when: telegraf_enabled and docker_telegraf
+  block:
+    - name: Docker | Add Telegraf User to Docker Group
+      ansible.builtin.user:
+        name: telegraf
+        groups: docker
+        append: true
+
+    - name: Docker | Active Telegraf Inputs
+      ansible.builtin.template:
+        src: etc/telegraf.conf.d/20-docker.conf.j2
+        dest: "{{ telegraf_conf_d_path }}/20-docker.conf"
+        mode: '0644'
+      notify: Telegraf | Restart Agent
+
+# Configure Logspout
+- name: Docker (LogSpout) | Setup Container
+  community.docker.docker_container:
+    name: logspout
+    image: gliderlabs/logspout:v3.2.13
+    hostname: "{{ ansible_hostname }}"
+    volumes:
+      - /etc/hostname:/etc/hostname:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    env:
+      BACKLOG: "{{ logspout_backlog }}"
+      RAW_FORMAT: "{{ logspout_format }}"
+    labels:
+      diun.enable: "{{ diun_enabled|bool|string }}"
+    pull: "{{ docker_upgrade_images | default(false) | bool }}"
+    command: multiline+udp://logs.lan.kraussnet.com:5000
+    restart_policy: unless-stopped
+    container_default_behavior: compatibility
+    state: "{{ 'started' if logspout_enabled else 'stopped' }}"
+
+# Configure Diun
+- name: Docker (Diun) | Setup Container
+  community.docker.docker_container:
+    name: diun
+    image: crazymax/diun:latest
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    env:
+      TZ: "{{ timezone }}"
+      LOG_LEVEL: info
+      LOG_JSON: "false"
+      DIUN_WATCH_WORKERS: "{{ diun_watch_workers }}"
+      DIUN_WATCH_SCHEDULE: "{{ diun_watch_schedule }}"
+      DIUN_PROVIDERS_DOCKER: "true"
+      DIUN_PROVIDERS_DOCKER_WATCHSTOPPED: "{{ diun_watch_stopped }}"
+      DIUN_NOTIF_MAIL_HOST: "{{ diun_notif_mail_host }}"
+      DIUN_NOTIF_MAIL_PORT: "{{ diun_notif_mail_port }}"
+      DIUN_NOTIF_MAIL_LOCALNAME: "{{ diun_notif_mail_localname }}"
+      DIUN_NOTIF_MAIL_FROM: "{{ diun_notif_mail_from }}"
+      DIUN_NOTIF_MAIL_TO: "{{ diun_notif_mail_to }}"
+    pull: "{{ docker_upgrade_images | default(false) | bool }}"
+    container_default_behavior: compatibility
+    restart_policy: unless-stopped
+    state: "{{ 'started' if diun_enabled else 'stopped' }}"

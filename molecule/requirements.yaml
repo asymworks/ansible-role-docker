@@ -1,0 +1,6 @@
+---
+# Ansible Role Requirements for Ansble Docker Role CI
+
+roles:
+  - name: asymworks.baseline
+    src: git+https://github.com/asymworks/ansible-role-baseline

@@ -1,0 +1,31 @@
+---
+# Debian-Specific Tasks for asymworks.docker
+
+# Install Prerequesites
+- name: Docker (Debian) | Install Prerequesites
+  ansible.builtin.apt:
+    name:
+      - apt-transport-https
+      - ca-certificates
+      - gnupg2
+      - python3-pip
+      - software-properties-common
+    state: present
+
+# Install APT Key and Repository
+- name: Docker (Debian) | Install Package Key
+  ansible.builtin.apt_key:
+    url: https://download.docker.com/linux/debian/gpg
+    state: present
+
+- name: Docker (Debian) | Install Repository
+  ansible.builtin.apt_repository:
+    repo: "deb https://download.docker.com/linux/debian {{ ansible_distribution_release }} stable"
+    state: present
+
+# Install Docker
+- name: Docker (Debian) | Install Docker
+  ansible.builtin.apt:
+    name:
+      - docker-ce
+    state: present

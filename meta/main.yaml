@@ -1,0 +1,18 @@
+---
+# Role Information for asymworks.docker
+
+dependencies: []
+
+galaxy_info:
+  namespace: asymworks
+  role_name: docker
+  author: asymworks
+  description: Asymworks Docker Server.
+  company: "Asymworks, LLC"
+  license: "license (BSD, MIT)"
+  min_ansible_version: 4.0
+  platforms:
+    - name: alpine
+      versions: ['3.13', '3.14']
+    - name: debian
+      versions: ['9', '10']

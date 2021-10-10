@@ -1,0 +1,41 @@
+# KraussNet Telegraf Docker Input Plugin
+# --------------------------------------
+#
+# This file is configured by Ansible
+
+[[inputs.docker]]
+    ## Docker Endpoint
+    ##   To use TCP, set endpoint = "tcp://[ip]:[port]"
+    ##   To use environment variables (ie, docker-machine), set endpoint = "ENV"
+    endpoint = "unix:///var/run/docker.sock"
+
+    ## Set to true to collect Swarm metrics(desired_replicas, running_replicas)
+    gather_services = {{ telegraf_docker_gather_services|bool|lower }}
+
+    ## Only collect metrics for these containers, collect all if empty
+    container_names = [{{ telegraf_docker_containers|map('quote')|join(', ') }}]
+
+    ## Containers to include and exclude. Globs accepted.
+    ## Note that an empty array for both will include all containers
+    container_name_include = [{{ telegraf_docker_containers_include|map('quote')|join(', ') }}]
+    container_name_exclude = [{{ telegraf_docker_containers_exclude|map('quote')|join(', ') }}]
+
+    ## Container states to include and exclude. Globs accepted.
+    ## When empty only containers in the "running" state will be captured.
+    ## example: container_state_include = ["created", "restarting", "running", "removing", "paused", "exited", "dead"]
+    ## example: container_state_exclude = ["created", "restarting", "running", "removing", "paused", "exited", "dead"]
+    # container_state_include = []
+    # container_state_exclude = []
+
+    ## Timeout for docker list, info, and stats commands
+    timeout = "{{ telegraf_docker_timeout }}"
+
+    ## Whether to report for each container per-device blkio (8:0, 8:1...) and
+    ## network (eth0, eth1, ...) stats or not
+    perdevice = {{ telegraf_docker_stats_perdev|bool|lower }}
+    ## Whether to report for each container total blkio and network stats or not
+    total = {{ telegraf_docker_stats_total|bool|lower }}
+
+    ## Note that an empty array for both will include all labels as tags
+    docker_label_include = []
+    docker_label_exclude = []

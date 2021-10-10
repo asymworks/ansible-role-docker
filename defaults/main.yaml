@@ -1,0 +1,49 @@
+---
+# Variable Defaults for asymworks.docker
+
+# Docker IPv6 Configuration
+docker_ipv6: false
+docker_ipv6_nat: true
+docker_ipv6_subnet: fd00::/80
+docker_ipv6_network: default
+
+# Add Docker Input to Telegraf
+docker_telegraf: true
+
+# Telegraf Docker Input Configuration
+telegraf_docker_gather_services: false
+telegraf_docker_containers: []
+telegraf_docker_containers_include: []
+telegraf_docker_containers_exclude: []
+telegraf_docker_timeout: 5s
+telegraf_docker_stats_perdev: true
+telegraf_docker_stats_total: false
+
+# Docker Diun Configuration
+diun_enabled: true
+diun_watch_schedule: 0 */6 * * *
+diun_watch_stopped: 'false'
+diun_watch_workers: '20'
+
+diun_notif_mail_host: localhost
+diun_notif_mail_port: '25'
+diun_notif_mail_localname: "{{ ansible_hostname }}"
+diun_notif_mail_from: "diun@{{ ansible_fqdn }}"
+diun_notif_mail_to: "diun@localhost"
+
+# Docker Logspout Configuration
+logspout_enabled: true
+logspout_dest_proto: multiline+udp
+logspout_dest_host: logs.lan
+logspout_dest_port: '5000'
+
+logspout_backlog: 'false'
+logspout_format: >-
+  {
+    "hostname": "{{ ansible_hostname }}",
+    "container": "{{ '{{' }} .Container.Name {{ '}}' }}",
+    "labels": {{ '{{' }} toJSON .Container.Config.Labels {{ '}}' }},
+    "timestamp": "{{ '{{' }} .Time.Format "2006-01-02T15:04:05.000Z07:00" {{ '}}' }}",
+    "source": "{{ '{{' }} .Source {{ '}}' }}",
+    "message": {{ '{{' }} toJSON .Data {{ '}}' }}
+  }

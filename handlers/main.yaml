@@ -1,0 +1,10 @@
+---
+# Handlers for asymworks.docker
+
+- name: Docker | Restart Docker
+  service: name=docker state=restarted
+
+# Copied from Asymworks Baseline
+- name: Telegraf | Restart Agent
+  when: telegraf_enabled
+  service: name=telegraf state=restarted

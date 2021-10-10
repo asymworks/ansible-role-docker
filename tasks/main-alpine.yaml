@@ -1,0 +1,17 @@
+---
+# Alpine-Specific Tasks for asymworks.docker
+
+# Install Docker
+- name: Docker (Alpine) | Install Docker
+  community.general.apk:
+    name:
+      - docker
+      - py3-pip
+    update_cache: true
+
+# Persist /srv in LBU
+- name: Docker (Alpine) | Persist /srv
+  ansible.builtin.command:
+    cmd: lbu include /srv
+  when: alpine_diskless
+  become: true
