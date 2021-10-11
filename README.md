@@ -97,9 +97,8 @@ None
 ```yaml
 - hosts: all
   roles:
-    kraussnet.common
-    kraussnet.telegraf
-    kraussnet.docker
+    asymworks.baseline
+    asymworks.docker
 ```
 
 ## License
