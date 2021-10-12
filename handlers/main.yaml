@@ -4,6 +4,10 @@
 - name: Docker | Restart Docker
   service: name=docker state=restarted
 
+- name: Docker (Traefik) | Restart Traefik
+  when: traefik_enabled
+  community.general.docker_container: name=traefik restart=true
+
 # Copied from Asymworks Baseline
 - name: Telegraf | Restart Agent
   when: telegraf_enabled

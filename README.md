@@ -1,6 +1,6 @@
 # Ansible Role: Docker Server
 
-An Ansible Role that installs the Docker Container Server and optionally configures [Logspout](https://github.com/gliderlabs/logspout) and [Diun](https://crazymax.dev/diun/).
+An Ansible Role that installs the Docker Container Server and optionally configures [Logspout](https://github.com/gliderlabs/logspout), [Diun](https://crazymax.dev/diun/), and [Traefik](https://traefik.io/traefik/).)
 
 ## Requirements
 
@@ -39,6 +39,7 @@ Configuration options for the Telegraf Docker input plugin.
 
 ```yaml
 logspout_enabled: true
+logspout_tag: v3.2.13
 logspout_dest_proto: multiline+udp
 logspout_dest_host: logs.lan.kraussnet.com
 logspout_dest_port: 5000
@@ -63,6 +64,7 @@ Configures the Logspout logging behavior and format.
 
 ```yaml
 diun_enabled: true
+diun_tag: latest
 diun_watch_schedule: 0 */6 * * *
 diun_watch_stopped: true
 diun_watch_workers: 20
@@ -79,6 +81,30 @@ diun_notif_mail_to: "diun@localhost"
 ```
 
 Configures the Diun Mail notifier.
+
+```yaml
+traefik_enabled: false
+traefik_tag: "v2.5"
+traefik_domain: "{{ ansible_domain }}"
+traefik_network: traefik
+traefik_log_level: INFO
+traefik_access_log: {}
+traefik_access_log_path: /var/log/traefik
+traefik_cert_resolvers: {}
+traefik_yml_additional: {}
+```
+
+Configures the Traefik proxy.  The `traefik_access_log_path` will be created on the Docker host system and mapped into the Traefik container automatically.  The `traefik_access_log` and `traefik_cert_resolvers` variables are written directly to the `accessLog` and `certificateResolvers` sections of the `traefik.yml` file respectively, and can contain any valid configuration data for those sections.  The `traefik_yml_additional` is written to the `traefik.yml` file without additional translation at the top level.
+
+```yaml
+traefik_http_port: "80"
+traefik_https_port: "443"
+traefik_entrypoints:
+  web:
+    address: ":{{ traefik_http_port }}"
+```
+
+Configures Traefik entry points.  Both the HTTP and HTTPS ports are opened on the container even if only one is set as an entrypoint. The `traefik_entrypoint` variable content is written directly to the `entryPoints` variable in `traefik.yml` and so can contain other functionality such as enforced HTTP to HTTPS redirects.
 
 ## Role Facts
 

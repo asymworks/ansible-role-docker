@@ -1,14 +1,9 @@
 ---
-- name: Converge
+- name: Prepare
   hosts: all
   pre_tasks:
-    # Set a flag to skip chrony operations for Alpine since Github CI has major issues
-    # running them that I cannot replicate
-    - set_fact:
-        __molecule_ci: true
-
     - include_role:
-        name: asymworks.baseline
+        name: "ansible-role-baseline"
         tasks_from: pre-tasks.yaml
 
     # Override the Alpine Diskless Mode fact since the docker container will
@@ -17,15 +12,8 @@
       set_fact:
         alpine_diskless: false
 
-  tasks:
-    - name: "Include baseline"
-      include_role:
-        name: asymworks.baseline
-        public: true
-
-    - name: "Include Docker"
-      include_role:
-        name: asymworks.docker
+  roles:
+    - asymworks.baseline
 
   post_tasks:
     - include_role:

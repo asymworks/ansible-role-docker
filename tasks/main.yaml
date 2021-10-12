@@ -91,7 +91,7 @@
 - name: Docker (LogSpout) | Setup Container
   community.docker.docker_container:
     name: logspout
-    image: gliderlabs/logspout:v3.2.13
+    image: "gliderlabs/logspout:{{ logspout_tag }}"
     hostname: "{{ ansible_hostname }}"
     volumes:
       - /etc/hostname:/etc/hostname:ro
@@ -105,13 +105,13 @@
     command: multiline+udp://logs.lan.kraussnet.com:5000
     restart_policy: unless-stopped
     container_default_behavior: compatibility
-    state: "{{ 'started' if logspout_enabled else 'stopped' }}"
+    state: "{{ 'started' if logspout_enabled else 'absent' }}"
 
 # Configure Diun
 - name: Docker (Diun) | Setup Container
   community.docker.docker_container:
     name: diun
-    image: crazymax/diun:latest
+    image: "crazymax/diun:{{ diun_tag }}"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     env:
@@ -130,4 +130,58 @@
     pull: "{{ docker_upgrade_images | default(false) | bool }}"
     container_default_behavior: compatibility
     restart_policy: unless-stopped
-    state: "{{ 'started' if diun_enabled else 'stopped' }}"
+    state: "{{ 'started' if diun_enabled else 'absent' }}"
+
+# Configure Traefik
+- name: Docker (Traefik) | Create Directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: '0755'
+  with_items:
+    - /srv/traefik
+    - /srv/traefik/acme
+    - /srv/traefik/certs
+    - /srv/traefik/conf.d
+    - "{{ traefik_access_log_path }}"
+
+- name: Docker (Traefik) | Copy Configuration
+  ansible.builtin.template:
+    src: "srv/traefik/traefik.yml.j2"
+    dest: /srv/traefik/traefik.yml
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Docker (Traefik) | Restart Traefik
+
+- name: Docker (Traefik) | Setup Docker Network
+  community.docker.docker_network:
+    name: "{{ traefik_network }}"
+    state: "{{ 'present' if traefik_enabled else 'absent' }}"
+
+- name: Docker (Traefik) | Setup Docker Container
+  community.docker.docker_container:
+    name: traefik
+    image: "traefik:{{ traefik_tag }}"
+    security_opts:
+      - no-new-privileges:true
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /srv/traefik/traefik.yml:/etc/traefik/traefik.yml:ro
+      - /srv/traefik/acme:/etc/traefik/acme:rw
+      - /srv/traefik/certs:/etc/traefik/certs:rw
+      - /srv/traefik/conf.d:/etc/traefik/conf.d:ro
+      - /var/log/traefik:/var/log:rw
+    published_ports:
+      - "{{ traefik_http_port }}:80/tcp"
+      - "{{ traefik_https_port }}:443/tcp"
+    network_mode: default
+    networks:
+      - name: bridge
+      - name: "{{ traefik_network }}"
+    labels:
+      diun.enable: "{{ diun_enabled|bool }}"
+    pull: "{{ docker_upgrade_images | default(false) | bool }}"
+    restart_policy: unless-stopped
+    container_default_behavior: compatibility
+    state: "{{ 'started' if traefik_enabled else 'absent' }}"

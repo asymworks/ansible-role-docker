@@ -22,7 +22,8 @@ platforms:
 provisioner:
   name: ansible
   playbooks:
-    converge: ${MOLECULE_PLAYBOOK:-converge.yml}
+    prepare: ../default/prepare.yml
+    converge: ../default/converge.yml
 
 lint: |
   set -e

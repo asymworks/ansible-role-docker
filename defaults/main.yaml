@@ -21,6 +21,7 @@ telegraf_docker_stats_total: false
 
 # Docker Diun Configuration
 diun_enabled: true
+diun_tag: latest
 diun_watch_schedule: 0 */6 * * *
 diun_watch_stopped: 'false'
 diun_watch_workers: '20'
@@ -33,6 +34,7 @@ diun_notif_mail_to: "diun@localhost"
 
 # Docker Logspout Configuration
 logspout_enabled: true
+logspout_tag: v3.2.13
 logspout_dest_proto: multiline+udp
 logspout_dest_host: logs.lan
 logspout_dest_port: '5000'
@@ -47,3 +49,21 @@ logspout_format: >-
     "source": "{{ '{{' }} .Source {{ '}}' }}",
     "message": {{ '{{' }} toJSON .Data {{ '}}' }}
   }
+
+# Docker Traefik Configuration
+traefik_enabled: false
+traefik_tag: "v2.5"
+traefik_domain: "{{ ansible_domain }}"
+traefik_network: traefik
+traefik_log_level: INFO
+traefik_access_log: {}
+traefik_access_log_path: /var/log/traefik
+traefik_cert_resolvers: {}
+traefik_yml_additional: {}
+
+# Traefik Entry Points
+traefik_http_port: "80"
+traefik_https_port: "443"
+traefik_entrypoints:
+  web:
+    address: ":{{ traefik_http_port }}"

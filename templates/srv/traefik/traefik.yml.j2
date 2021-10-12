@@ -1,0 +1,41 @@
+## traefik.yml
+## This file is managed by Ansible
+
+# Entry Points
+entryPoints:
+  {{ traefik_entrypoints|to_nice_yaml(indent=2)|indent(2, False) }}
+
+# ACME Resolvers
+{% if traefik_cert_resolvers %}
+certificatesResolvers:
+  {{ traefik_cert_resolvers|to_nice_yaml(indent=2)|indent(2, False) }}
+{% endif %}
+
+# Docker Configuration Backend
+providers:
+  docker:
+    defaultRule: "Host(`{{ '{{' }} trimPrefix `/` .Name {{ '}}' }}.{{ traefik_domain|default('local') }}`)"
+    exposedByDefault: false
+
+  file:
+    directory: /etc/traefik/conf.d
+    watch: true
+
+# Logging Configuration
+log:
+  level: {{ traefik_log_level }}
+
+# Disable Pilot
+pilot:
+  dashboard: false
+
+{% if traefik_access_log|default({}) %}
+# Access Logging
+accessLog:
+  {{ traefik_access_log|to_nice_yaml(indent=2)|indent(2, False) }}
+
+{% endif %}
+{% if traefik_yml_additional|default({}) %}
+{{ traefik_yml_additional|to_nice_yaml(indent=2) }}
+
+{% endif %}
