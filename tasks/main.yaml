@@ -15,6 +15,23 @@
     groups: docker
     append: true
 
+- name: Docker | Check Configuration Directory
+  ansible.builtin.file:
+    path: /etc/docker
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Docker | Update Daemon Configuration
+  ansible.builtin.template:
+    src: etc/docker/daemon.json.j2
+    dest: /etc/docker/daemon.json
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Docker | Restart Docker
+
 # Start Docker Daemon
 - name: Docker | Start Docker
   service:
@@ -31,15 +48,6 @@
 - name: Docker | Enable IPv6
   when: docker_ipv6
   block:
-    - name: Docker (IPv6) | Update Daemon Configuration
-      ansible.builtin.template:
-        src: etc/docker/daemon.json.j2
-        dest: /etc/docker/daemon.json
-        owner: root
-        group: root
-        mode: '0644'
-      notify: Docker | Restart Docker
-
     - name: Docker (IPv6) | Setup IPv6 Network
       when: docker_ipv6_network != 'default'
       community.docker.docker_network:
@@ -172,9 +180,7 @@
       - /srv/traefik/certs:/etc/traefik/certs:rw
       - /srv/traefik/conf.d:/etc/traefik/conf.d:ro
       - /var/log/traefik:/var/log:rw
-    published_ports:
-      - "{{ traefik_http_port }}:80/tcp"
-      - "{{ traefik_https_port }}:443/tcp"
+    published_ports: "{{ traefik_docker_ports }}"
     network_mode: default
     networks:
       - name: bridge
@@ -185,3 +191,55 @@
     restart_policy: unless-stopped
     container_default_behavior: compatibility
     state: "{{ 'started' if traefik_enabled else 'absent' }}"
+
+- name: Docker (Traefik) | Check fail2ban Directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  with_list:
+    - /etc/fail2ban
+    - /etc/fail2ban/filter.d
+    - /etc/fail2ban/jail.d
+
+- name: Docker (Traefik) | Install fail2ban Filters
+  ansible.builtin.copy:
+    src: "etc/fail2ban/filter.d/{{ item }}"
+    dest: "/etc/fail2ban/filter.d/{{ item }}"
+    owner: root
+    group: root
+    mode: '0644'
+  with_list:
+    - traefik-auth.conf
+
+- name: Docker (Traefik) | Check for fail2ban Jail Configuration
+  ansible.builtin.stat:
+    path: /etc/fail2ban/jail.d/traefik.conf
+  register: traefik_jail
+  check_mode: false
+
+- name: Docker (Traefik) | Install Traefik fail2ban Jail Configuration
+  when: not traefik_jail.stat.exists
+  ansible.builtin.template:
+    src: "etc/fail2ban/jail.d/traefik.conf.j2"
+    dest: "/etc/fail2ban/jail.d/traefik.conf"
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Docker (Traefik) | Install Logrotate Configuration
+  when: traefik_logrotate_enabled
+  ansible.builtin.template:
+    src: "etc/logrotate.d/traefik.j2"
+    dest: "/etc/logrotate.d/traefik"
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Docker (Traefik) | Remove logrotate Configuration
+  when: not traefik_logrotate_enabled
+  ansible.builtin.file:
+    path: /etc/logrotate.d/traefik
+    state: absent

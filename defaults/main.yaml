@@ -61,9 +61,25 @@ traefik_access_log_path: /var/log/traefik
 traefik_cert_resolvers: {}
 traefik_yml_additional: {}
 
-# Traefik Entry Points
+# Traefik Entrypoints
 traefik_http_port: "80"
 traefik_https_port: "443"
 traefik_entrypoints:
   web:
     address: ":{{ traefik_http_port }}"
+
+traefik_docker_ports:
+  - "{{ traefik_http_port }}:80/tcp"
+  - "{{ traefik_https_port }}:443/tcp"
+
+# Traefik Firewall Configuration
+traefik_ufw_app: WWW Full
+traefik_ufw_ports: []
+
+# Traefik Fail2Ban and Logrotate Configuration
+traefik_fail2ban_enabled: "{{ traefik_access_log|bool }}"
+traefik_fail2ban_ports: http,https
+traefik_fail2ban_jails:
+  - traefik-auth
+
+traefik_logrotate_enabled: "{{ traefik_access_log|bool }}"

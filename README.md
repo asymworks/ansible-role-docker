@@ -102,9 +102,22 @@ traefik_https_port: "443"
 traefik_entrypoints:
   web:
     address: ":{{ traefik_http_port }}"
+
+traefik_docker_ports:
+  - "{{ traefik_http_port }}:80/tcp"
+  - "{{ traefik_https_port }}:443/tcp"
 ```
 
-Configures Traefik entry points.  Both the HTTP and HTTPS ports are opened on the container even if only one is set as an entrypoint. The `traefik_entrypoint` variable content is written directly to the `entryPoints` variable in `traefik.yml` and so can contain other functionality such as enforced HTTP to HTTPS redirects.
+Configures Traefik entry points.  The `traefik_entrypoint` variable content is written directly to the `entryPoints` variable in `traefik.yml` and so can contain other functionality such as enforced HTTP to HTTPS redirects.  The `traefik_docker_ports` controls the mapping of host ports to docker container ports and is passed directly to the `ports` attribute of the docker container.
+
+```yaml
+traefik_fail2ban_enabled: "{{ traefik_access_log|bool }}"
+traefik_fail2ban_ports: http,https
+
+traefik_logrotate_enabled: "{{ traefik_access_log|bool }}"
+```
+
+Configures a fail2ban jail and log rotation for Traefik access logs on the host system.  Both are enabled by default when the access log is configured. Currently only the `traefik-auth` filter is installed.
 
 ## Role Facts
 
