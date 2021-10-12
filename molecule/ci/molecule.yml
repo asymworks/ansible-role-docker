@@ -23,7 +23,6 @@ provisioner:
   name: ansible
   playbooks:
     prepare: ../default/prepare.yml
-    converge: ../default/converge.yml
 
 lint: |
   set -e
