@@ -186,7 +186,7 @@
       - name: bridge
       - name: "{{ traefik_network }}"
     labels:
-      diun.enable: "{{ diun_enabled|bool }}"
+      diun.enable: "{{ diun_enabled|bool|string }}"
     pull: "{{ docker_upgrade_images | default(false) | bool }}"
     restart_policy: unless-stopped
     container_default_behavior: compatibility
