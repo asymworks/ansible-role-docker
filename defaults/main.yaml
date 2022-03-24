@@ -19,6 +19,15 @@ telegraf_docker_timeout: 5s
 telegraf_docker_stats_perdev: true
 telegraf_docker_stats_total: false
 
+# Telegraf Configuration Paths
+telegraf_conf_path: /etc
+telegraf_conf_d_path: >-
+  {{
+    '/etc/telegraf.conf.d'
+      if ansible_facts['os_family']|lower == 'alpine'
+      else '/etc/telegraf/telegraf.d'
+  }}
+
 # Docker Diun Configuration
 diun_enabled: true
 diun_tag: latest
