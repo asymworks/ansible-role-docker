@@ -10,7 +10,7 @@
 
 # Add ansible User to Docker Group
 - name: Docker | Add User to Docker Group
-  user:
+  ansible.builtin.user:
     name: ansible
     groups: docker
     append: true
@@ -34,14 +34,14 @@
 
 # Start Docker Daemon
 - name: Docker | Start Docker
-  service:
+  ansible.builtin.service:
     name: docker
     enabled: true
     state: started
 
 # Install Python Docker SDK
 - name: Docker | Install Docker Module for Python
-  pip:
+  ansible.builtin.pip:
     name: docker
 
 # Enable Docker IPv6
@@ -94,6 +94,7 @@
         state: directory
         owner: root
         group: root
+        mode: "0755"
 
     - name: Docker | Active Telegraf Inputs
       ansible.builtin.template:
