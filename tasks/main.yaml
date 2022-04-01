@@ -88,6 +88,13 @@
         groups: docker
         append: true
 
+    - name: Docker | Check Telegraf Directory
+      ansible.builtin.file:
+        path: "{{ telegraf_conf_d_path }}"
+        state: directory
+        owner: root
+        group: root
+
     - name: Docker | Active Telegraf Inputs
       ansible.builtin.template:
         src: etc/telegraf.conf.d/20-docker.conf.j2
@@ -142,6 +149,7 @@
 
 # Configure Traefik
 - name: Docker (Traefik) | Create Directories
+  when: traefik_enabled
   ansible.builtin.file:
     path: "{{ item }}"
     state: directory
@@ -154,6 +162,7 @@
     - "{{ traefik_access_log_path }}"
 
 - name: Docker (Traefik) | Copy Configuration
+  when: traefik_enabled
   ansible.builtin.template:
     src: "srv/traefik/traefik.yml.j2"
     dest: /srv/traefik/traefik.yml
@@ -193,6 +202,7 @@
     state: "{{ 'started' if traefik_enabled else 'absent' }}"
 
 - name: Docker (Traefik) | Check fail2ban Directories
+  when: traefik_enabled and traefik_fail2ban_enabled
   ansible.builtin.file:
     path: "{{ item }}"
     state: directory
@@ -205,6 +215,7 @@
     - /etc/fail2ban/jail.d
 
 - name: Docker (Traefik) | Install fail2ban Filters
+  when: traefik_enabled and traefik_fail2ban_enabled
   ansible.builtin.copy:
     src: "etc/fail2ban/filter.d/{{ item }}"
     dest: "/etc/fail2ban/filter.d/{{ item }}"
@@ -215,13 +226,14 @@
     - traefik-auth.conf
 
 - name: Docker (Traefik) | Check for fail2ban Jail Configuration
+  when: traefik_enabled and traefik_fail2ban_enabled
   ansible.builtin.stat:
     path: /etc/fail2ban/jail.d/traefik.conf
   register: traefik_jail
   check_mode: false
 
 - name: Docker (Traefik) | Install Traefik fail2ban Jail Configuration
-  when: not traefik_jail.stat.exists
+  when: traefik_enabled and traefik_fail2ban_enabled and not traefik_jail.stat.exists
   ansible.builtin.template:
     src: "etc/fail2ban/jail.d/traefik.conf.j2"
     dest: "/etc/fail2ban/jail.d/traefik.conf"
