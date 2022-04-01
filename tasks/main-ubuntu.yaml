@@ -1,0 +1,31 @@
+---
+# Ubuntu-Specific Tasks for asymworks.docker
+
+# Install Prerequesites
+- name: Docker (Ubuntu) | Install Prerequesites
+  ansible.builtin.apt:
+    name:
+      - apt-transport-https
+      - ca-certificates
+      - gnupg2
+      - python3-pip
+      - software-properties-common
+    state: present
+
+# Install APT Key and Repository
+- name: Docker (Ubuntu) | Install Package Key
+  ansible.builtin.apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    state: present
+
+- name: Docker (Ubuntu) | Install Repository
+  ansible.builtin.apt_repository:
+    repo: "deb https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+    state: present
+
+# Install Docker
+- name: Docker (Ubuntu) | Install Docker
+  ansible.builtin.apt:
+    name:
+      - docker-ce
+    state: present

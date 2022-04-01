@@ -2,7 +2,7 @@
 # Handlers for asymworks.docker
 
 - name: Docker | Restart Docker
-  service: name=docker state=restarted
+  ansible.builtin.service: name=docker state=restarted
 
 - name: Docker (Traefik) | Restart Traefik
   when: traefik_enabled
@@ -11,4 +11,4 @@
 # Copied from Asymworks Baseline
 - name: Telegraf | Restart Agent
   when: telegraf_enabled
-  service: name=telegraf state=restarted
+  ansible.builtin.service: name=telegraf state=restarted
