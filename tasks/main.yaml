@@ -80,7 +80,7 @@
 
 # Configure Telegraf
 - name: Docker | Configure Telegraf
-  when: telegraf_enabled and docker_telegraf
+  when: telegraf_enabled is defined and telegraf_enabled and docker_telegraf
   block:
     - name: Docker | Add Telegraf User to Docker Group
       ansible.builtin.user:
