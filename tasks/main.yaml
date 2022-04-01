@@ -6,7 +6,10 @@
   when: ansible_facts['os_family']|lower == 'alpine'
 
 - import_tasks: main-debian.yaml
-  when: ansible_facts['os_family']|lower == 'debian'
+  when: ansible_facts['os_family']|lower == 'debian' and ansible_facts['distribution']|lower == 'debian'
+
+- import_tasks: main-ubuntu.yaml
+  when: ansible_facts['os_family']|lower == 'debian' and ansible_facts['distribution']|lower == 'ubuntu'
 
 # Add ansible User to Docker Group
 - name: Docker | Add User to Docker Group
