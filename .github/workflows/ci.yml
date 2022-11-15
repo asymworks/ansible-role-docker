@@ -16,7 +16,7 @@ defaults:
 jobs:
   lint:
     name: Lint
-    runs-on: ubuntu:20.04
+    runs-on: ubuntu-20.04
     steps:
       - name: Check out the codebase
         uses: actions/checkout@v2
@@ -42,7 +42,7 @@ jobs:
 
   molecule:
     name: Molecule
-    runs-on: ubuntu:20.04
+    runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
       matrix:
