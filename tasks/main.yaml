@@ -2,13 +2,16 @@
 # Main Entry Point for asymworks.docker
 
 # Run Distribution-Specific Tasks
-- import_tasks: main-alpine.yaml
+- name: Docker | Run Alpine Distribution Tasks
+  ansible.builtin.import_tasks: main-alpine.yaml
   when: ansible_facts['os_family']|lower == 'alpine'
 
-- import_tasks: main-debian.yaml
+- name: Docker | Run Debian Distribution Tasks
+  ansible.builtin.import_tasks: main-debian.yaml
   when: ansible_facts['os_family']|lower == 'debian' and ansible_facts['distribution']|lower == 'debian'
 
-- import_tasks: main-ubuntu.yaml
+- name: Docker | Run Ubuntu Distribution Tasks
+  ansible.builtin.import_tasks: main-ubuntu.yaml
   when: ansible_facts['os_family']|lower == 'debian' and ansible_facts['distribution']|lower == 'ubuntu'
 
 # Add ansible User to Docker Group
@@ -178,7 +181,7 @@
               "log-options": {
                 "max-file": "3",
                 "max-size": "50m",
-                "mode": "non-blocking",
+                "mode": "non-blocking"
             }
           )
         }}'
