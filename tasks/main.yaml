@@ -50,7 +50,7 @@
 # Slurp Docker Daemon Configuration
 - name: Docker | Read Configuration
   block:
-    - slurp: 
+    - slurp:
         src: /etc/docker/daemon.json
       register: slurped
     - set_fact:
@@ -76,7 +76,7 @@
       block:
         - set_fact:
             daemon_json: '{{
-              daemon_json 
+              daemon_json
               | dict2items
               | rejectattr("key", "match", "^(ipv6|fixed-cidr-v6|userland-proxy)$")
               | items2dict
