@@ -36,8 +36,8 @@ jobs:
       - name: Lint code
         run: molecule lint -s ci
         env:
-          MOLECULE_DOCKER_IMAGE: alpine:3.15
-          MOLECULE_DOCKER_COMMAND: /sbin/init
+          CI_DOCKER_IMAGE: alpine:3.15
+          CI_DOCKER_COMMAND: /sbin/init
           MOLECULE_NO_LOG: 'false'
 
   molecule:
