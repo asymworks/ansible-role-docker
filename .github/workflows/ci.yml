@@ -65,7 +65,7 @@ jobs:
           - image: ubuntu:20.04
             command: /lib/systemd/systemd
 
-          - image: ubuntu:21.10
+          - image: ubuntu:22.04
             command: /lib/systemd/systemd
 
     steps:
