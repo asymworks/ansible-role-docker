@@ -38,6 +38,7 @@ jobs:
         env:
           MOLECULE_DOCKER_IMAGE: alpine:3.15
           MOLECULE_DOCKER_COMMAND: /sbin/init
+          MOLECULE_NO_LOG: 'false'
 
   molecule:
     name: Molecule
@@ -96,3 +97,4 @@ jobs:
           ANSIBLE_FORCE_COLOR: '1'
           MOLECULE_DOCKER_IMAGE: ${{ matrix.image }}
           MOLECULE_DOCKER_COMMAND: ${{ matrix.command }}
+          MOLECULE_NO_LOG: 'false'
