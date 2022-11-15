@@ -8,33 +8,33 @@ driver:
   name: docker
 
 platforms:
-  - name: debian9
-    image: debian:9
-    dockerfile: Dockerfile.j2
-    pre_build_image: false
-    tmpfs:
-      - /run
-      - /tmp
-    volumes:
-      - /sys/fs/cgroup:/sys/fs/cgroup:ro
-    privileged: true
-    security_opts:
-      - seccomp=unconfined
-    command: /lib/systemd/systemd
+  # - name: debian9
+  #   image: debian:9
+  #   dockerfile: Dockerfile.j2
+  #   pre_build_image: false
+  #   tmpfs:
+  #     - /run
+  #     - /tmp
+  #   volumes:
+  #     - /sys/fs/cgroup:/sys/fs/cgroup:ro
+  #   privileged: true
+  #   security_opts:
+  #     - seccomp=unconfined
+  #   command: /lib/systemd/systemd
 
-  - name: debian10
-    image: debian:10
-    dockerfile: Dockerfile.j2
-    pre_build_image: false
-    tmpfs:
-      - /run
-      - /tmp
-    volumes:
-      - /sys/fs/cgroup:/sys/fs/cgroup:ro
-    privileged: true
-    security_opts:
-      - seccomp=unconfined
-    command: /lib/systemd/systemd
+  # - name: debian10
+  #   image: debian:10
+  #   dockerfile: Dockerfile.j2
+  #   pre_build_image: false
+  #   tmpfs:
+  #     - /run
+  #     - /tmp
+  #   volumes:
+  #     - /sys/fs/cgroup:/sys/fs/cgroup:ro
+  #   privileged: true
+  #   security_opts:
+  #     - seccomp=unconfined
+  #   command: /lib/systemd/systemd
 
   - name: alpine313
     image: alpine:3.13

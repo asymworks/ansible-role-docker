@@ -42,7 +42,17 @@
     name: docker
 
 # Slurp Docker Daemon Configuration
+- name: Docker | Initialize Configuration
+  ansible.builtin.set_fact:
+    daemon_json: {}
+
+- name: Docker | Check for daemon.json
+  ansible.builtin.stat:
+    path: /etc/docker/daemon.json
+  register: rc
+
 - name: Docker | Read Configuration
+  when: rc.stat.exists
   block:
     - name: Docker | Slurp Daemon Configuration
       ansible.builtin.slurp:
