@@ -43,7 +43,7 @@ diun_notif_mail_to: "diun@localhost"
 
 # Docker Loki Logger Configuration
 docker_loki_enabled: true
-docker_loki_url: https://localhost:3100/loki/api/v1/push
+docker_loki_url: http://localhost:3100/loki/api/v1/push
 docker_loki_opts: {}
 
 # Docker Logspout Configuration
