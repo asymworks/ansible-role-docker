@@ -38,6 +38,16 @@ telegraf_docker_stats_total: false
 Configuration options for the Telegraf Docker input plugin.
 
 ```yaml
+docker_loki_enabled: true
+docker_loki_url: https://localhost:3100/loki/api/v1/push
+docker_loki_opts: {}
+```
+
+Enables or disables the global Loki logging endpoint for the Docker Daemon.
+`docker_loki_opts` are written to the `log-opts` object in the `daemon.json`
+file.
+
+```yaml
 logspout_enabled: true
 logspout_tag: v3.2.13
 logspout_dest_proto: multiline+udp
