@@ -21,8 +21,8 @@ platforms:
 
 provisioner:
   name: ansible
-  playbooks:
-    prepare: ../default/prepare.yml
+#   playbooks:
+#     prepare: ../default/prepare.yml
 
 lint: |
   set -e

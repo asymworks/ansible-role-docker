@@ -6,6 +6,8 @@ dependency:
 
 driver:
   name: docker
+  options:
+    login_cmd_template: 'docker exec -ti {instance} ash'
 
 platforms:
   # - name: debian9

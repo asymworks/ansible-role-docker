@@ -62,18 +62,25 @@
       ansible.builtin.set_fact:
         daemon_json: "{{ slurped.content | b64decode | from_json }}"
 
+# Wait for Docker to start
+- name: Docker | Wait for Docker Daemon
+  ansible.builtin.stat:
+    path: /var/run/docker.sock
+  register: rc
+  until: rc.stat.exists
+  retries: 10
+  delay: 5
+
 # Disable Docker IPv6
 - name: Docker | Disable IPv6
   when: docker_ipv6 is not defined or not docker_ipv6
   block:
     - name: Docker (IPv6) | Remove IPv6 NAT
-      when: docker_ipv6_network == 'default'
       community.docker.docker_container:
         name: ipv6nat
         state: absent
 
     - name: Docker (IPv6) | Remove IPv6 Network
-      when: docker_ipv6_network != 'default'
       community.docker.docker_network:
         name: "{{ docker_ipv6_network }}"
         state: absent
@@ -156,7 +163,7 @@
           | combine(
             {
               "log-driver": "loki",
-              "log-options": {
+              "log-opts": {
                 "loki-url": docker_loki_url,
               } | combine(docker_loki_opts|default({}))
             }
@@ -226,7 +233,7 @@
 - name: Docker | Remove Telegraf
   when: telegraf_enabled is not defined or not telegraf_enabled or not docker_telegraf
   block:
-    - name: Docker | Deactivaate Telegraf Inputs
+    - name: Docker | Deactivate Telegraf Inputs
       ansible.builtin.file:
         path: "{{ telegraf_conf_d_path }}/20-docker.conf"
         state: absent
