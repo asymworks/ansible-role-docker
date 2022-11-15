@@ -29,15 +29,6 @@
     group: root
     mode: '0755'
 
-- name: Docker | Update Daemon Configuration
-  ansible.builtin.template:
-    src: etc/docker/daemon.json.j2
-    dest: /etc/docker/daemon.json
-    owner: root
-    group: root
-    mode: '0644'
-  notify: Docker | Restart Docker
-
 # Start Docker Daemon
 - name: Docker | Start Docker
   ansible.builtin.service:
@@ -146,7 +137,7 @@
       community.docker.docker_plugin:
         plugin_name: grafana/loki-docker-driver:latest
         alias: loki
-        state: enabled
+        state: enable
 
     - name: Docker | Enable Daemon Loki Logging
       ansible.builtin.set_fact:
@@ -195,6 +186,7 @@
     owner: root
     group: root
     mode: '0644'
+  notify: Docker | Restart Docker
 
 # Configure Telegraf
 - name: Docker | Configure Telegraf
