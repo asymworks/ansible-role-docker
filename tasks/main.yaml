@@ -325,7 +325,7 @@
 - name: Docker (Traefik) | Setup Docker Network
   community.docker.docker_network:
     name: "{{ traefik_network }}"
-    state: "{{ 'present' if traefik_enabled else 'absent' }}"
+    state: "{{ 'present' if traefik_enabled else 'absent' }}"  # noqa: args[module]
 
 - name: Docker (Traefik) | Setup Docker Container
   community.docker.docker_container:
