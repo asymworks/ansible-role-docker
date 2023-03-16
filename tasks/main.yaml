@@ -173,7 +173,16 @@
 - name: Docker | Disable Loki Logging
   when: docker_loki_enabled is not defined or not docker_loki_enabled
   block:
+    - name: Docker | Check Loki Logging Plugin
+      check_mode: true
+      community.docker.docker_plugin:
+        plugin_name: grafana/loki-docker-driver:latest
+        alias: loki
+        state: absent
+      register: loki_plugin_rc
+
     - name: Docker | Disable Loki Logging Plugin
+      when: loki_plugin_rc.changed
       community.docker.docker_plugin:
         plugin_name: grafana/loki-docker-driver:latest
         alias: loki
@@ -185,17 +194,17 @@
         alias: loki
         state: absent
 
+    # TODO: Make this configurable
     - name: Docker | Disable Daemon Loki Logging
       ansible.builtin.set_fact:
         daemon_json: '{{
           daemon_json
           | combine(
             {
-              "log-driver": "json-file",
-              "log-options": {
+              "log-driver": "local",
+              "log-opts": {
                 "max-file": "3",
                 "max-size": "50m",
-                "mode": "non-blocking",
               },
             }
           )
