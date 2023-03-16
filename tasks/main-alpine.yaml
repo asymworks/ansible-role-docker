@@ -10,7 +10,7 @@
     update_cache: true
 
 # Persist /srv in LBU
-- name: Docker (Alpine) | Persist /srv
+- name: Docker (Alpine) | Persist /srv  # noqa: no-changed-when
   ansible.builtin.command:
     cmd: lbu include /srv
   when: alpine_diskless
