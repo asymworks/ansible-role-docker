@@ -173,6 +173,12 @@
 - name: Docker | Disable Loki Logging
   when: docker_loki_enabled is not defined or not docker_loki_enabled
   block:
+    - name: Docker | Disable Loki Logging Plugin
+      community.docker.docker_plugin:
+        plugin_name: grafana/loki-docker-driver:latest
+        alias: loki
+        state: disable
+
     - name: Docker | Uninstall Loki Logging Plugin
       community.docker.docker_plugin:
         plugin_name: grafana/loki-docker-driver:latest
