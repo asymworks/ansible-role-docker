@@ -181,7 +181,7 @@
         state: absent
       register: loki_plugin_rc
 
-    - name: Docker | Disable Loki Logging Plugin
+    - name: Docker | Disable Loki Logging Plugin  # noqa: no-handler
       when: loki_plugin_rc.changed
       community.docker.docker_plugin:
         plugin_name: grafana/loki-docker-driver:latest
