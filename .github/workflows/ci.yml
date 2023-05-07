@@ -81,7 +81,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip3 install --upgrade pip
-          pip3 install ansible ansible-lint "molecule[docker,lint]<4.0"
+          pip3 install ansible ansible-lint molecule "molecule-plugins[docker]"
 
       - name: Force GitHub Actions' docker daemon to use vfs.
         run: |
